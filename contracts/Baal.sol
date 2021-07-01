@@ -71,8 +71,9 @@ contract Baal {
         uint256 maxVotingPeriod,
         string name,
         string symbol,
-        bool transferableLoot,
-        bool transferableVoice
+        //bool transferableLoot,
+        //bool transferableVoice
+        uint8 boolz
     ); /*emits after Baal summoning*/
     event SubmitProposal(
         address[] to,
@@ -174,12 +175,13 @@ contract Baal {
         uint96[] memory voice,
         uint32 _minVotingPeriod,
         uint32 _maxVotingPeriod,
-        uint256 _lootToVoiceMantissa,
-        bool _lootToVoiceQuadratic,
+        uint8 boolz, /*bool settings represented by bits*/
+        //bool _lootToVoiceQuadratic,
         string memory _name,
         string memory _symbol,
-        bool _lootPaused,
-        bool _voicePaused
+       // bool _lootPaused,
+       // bool _voicePaused
+        uint256 _lootToVoiceMantissa
     ) {
         uint96 initialTotalVoiceAndLoot;
         unchecked {
@@ -198,12 +200,13 @@ contract Baal {
         } /*event reflects mint of erc20 loot to summoning `members`*/
         minVotingPeriod = _minVotingPeriod; /*set minimum voting period-adjustable via 'governance'[1] proposal*/
         maxVotingPeriod = _maxVotingPeriod; /*set maximum voting period-adjustable via 'governance'[1] proposal*/
+        (lootToVoiceQuadratic, lootPaused, voicePaused) = bit2Bool(boolz); /* rhs return being the rhs bit */ 
         lootToVoiceMantissa = _lootToVoiceMantissa;
-        lootToVoiceQuadratic = _lootToVoiceQuadratic;
+        //lootToVoiceQuadratic = _lootToVoiceQuadratic;
         name = _name; /*set Baal loot 'name' with erc20 accounting*/
         symbol = _symbol; /*set Baal loot 'symbol' with erc20 accounting*/
-        lootPaused = _lootPaused;
-        voicePaused = _voicePaused;
+        //lootPaused = _lootPaused;
+        //voicePaused = _voicePaused;
         status = 1; /*set reentrancy guard status*/
         emit SummonComplete(
             _shamans,
@@ -215,8 +218,9 @@ contract Baal {
             _maxVotingPeriod,
             _name,
             _symbol,
-            _lootPaused,
-            _voicePaused
+            //_lootPaused,
+            //_voicePaused
+            boolz
         );
     } /*emit event reflecting Baal summoning completed*/
 
@@ -868,5 +872,21 @@ contract Baal {
         } else if (y != 0) {
             z = 1;
         }
+    }
+    /// Running bitMask over rhs bit
+    function bitWise (uint8 bits) private pure returns (bool) {
+        //uint8 bitMask = 1;
+        if(bits & 1 == 1) return true;
+        return false;
+    }
+
+    /// bit input / Bool output
+    function bit2Bool(uint8 cramped) public pure returns (bool left, bool middle, bool right) {
+        right = bitWise(cramped);
+        cramped = cramped / 2;
+        middle = bitWise(cramped);
+        cramped = cramped / 2;
+        left = bitWise(cramped);
+        return (left, middle, right);  
     }
 }
